@@ -28,7 +28,7 @@ module.exports = {
                 category,
                 password: hashedPassword
             });
-            return res.status(201).json({ success: true, status: 201, msg: "User Signup Successfully", data: newUser });
+            return res.status(200).json({ success: true, status: 200, msg: "User Signup Successfully", data: newUser });
 
         } catch (error) {
             console.log(error);
