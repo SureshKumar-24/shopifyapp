@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .user-card {
+            border: 1px solid #ddd;
+            margin: 10px;
+            padding: 10px;
+            width: 300px;
+            display: inline-block;
+        }
+
+        .accept-btn, .reject-btn {
+            cursor: pointer;
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid #007bff;
+            color: #007bff;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .accept-btn:hover, .reject-btn:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-disabled {
+            cursor: not-allowed;
+            background-color: #ddd !important;
+            color: #666 !important;
+        }
+
+        .filter-container {
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchUsers(); // Fetch users without specifying a category by default
+        });
+
+        function fetchUsers(categoryType, searchValue) {
+            let url = 'https://76dd-2405-201-5023-4823-80f5-7861-7db8-d40c.ngrok-free.app/user/get?page=1&limit=10';
+
+            // Add category filter if selected
+            if (categoryType !== undefined && categoryType !== '') {
+                url += `&categorytype=${categoryType}`;
+            }
+
+            // Add search filter if provided
+            if (searchValue !== undefined && searchValue !== '') {
+                url += `&searchvalue=${searchValue}`;
+            }
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => displayUsers(data.data));
+        }
+
+        function displayUsers(users) {
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = ''; // Clear existing user list
+
+            users.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.classList.add('user-card');
+
+                const userType = user.category === 0 ? 'Retailer' : 'Wholesaler';
+                const statusText = user.status === null ? 'Accept or Reject' : (user.status === 0 ? 'Accepted' : 'Rejected');
+
+                userCard.innerHTML = `
+                    <p><strong>Name:</strong> ${user.firstName} ${user.lastName}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Type:</strong> ${userType}</p>
+                    <p><strong>Status:</strong> ${statusText}</p>
+                `;
+
+                const acceptBtn = createButton('Accept', 'accept-btn', () => handleStatusChange(user.email, 0));
+                const rejectBtn = createButton('Reject', 'reject-btn', () => handleStatusChange(user.email, 1));
+
+                // If status is not null, disable the buttons
+                const disabledBtnClass = 'btn-disabled';
+                if (user.status !== null) {
+                    acceptBtn.classList.add(disabledBtnClass);
+                    rejectBtn.classList.add(disabledBtnClass);
+                }
+
+                userCard.appendChild(acceptBtn);
+                userCard.appendChild(rejectBtn);
+
+                userList.appendChild(userCard);
+            });
+        }
+
+        function createButton(text, className, clickHandler) {
+            const button = document.createElement('div');
+            button.classList.add(className);
+            button.textContent = text;
+            button.addEventListener('click', clickHandler);
+            return button;
+        }
+
+        function handleStatusChange(email, newStatus) {
+            const requestOptions = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    status: newStatus
+                })
+            };
+
+            fetch('https://76dd-2405-201-5023-4823-80f5-7861-7db8-d40c.ngrok-free.app/user/update', requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    // Handle response from the server, if needed
+                    console.log(data);
+                    // Refresh user list with the current category type and search value
+                    const categoryType = document.getElementById('category-filter').value;
+                    const searchValue = document.getElementById('search-input').value;
+                    fetchUsers(categoryType, searchValue);
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                });
+        }
+    </script>
+</head>
+<body>
+    <div class="filter-container">
+        <label for="category-filter">Filter by Category:</label>
+        <select id="category-filter" onchange="filterUsers()">
+            <option value="" selected>Show All</option> <!-- Set "Show All" as the default selected option -->
+            <option value="0">Retailer</option>
+            <option value="1">Wholesaler</option>
+        </select>
+
+        <label for="search-input">Search:</label>
+        <input type="text" id="search-input" oninput="filterUsers()" placeholder="Enter search term">
+    </div>
+
+    <div id="user-list"></div>
+
+    <script>
+        function filterUsers() {
+            const categoryType = document.getElementById('category-filter').value;
+            const searchValue = document.getElementById('search-input').value;
+            fetchUsers(categoryType, searchValue);
+        }
+    </script>
+</body>
+</html>
