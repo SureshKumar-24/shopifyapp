@@ -43,7 +43,7 @@
         });
 
         function fetchUsers(categoryType, searchValue) {
-            let url = 'https://76dd-2405-201-5023-4823-80f5-7861-7db8-d40c.ngrok-free.app/user/get?page=1&limit=10';
+            let url = 'https://2f3d-2405-201-5023-4823-b9c4-f345-e4c-1a10.ngrok-free.app/user/get?page=1&limit=10';
 
             // Add category filter if selected
             if (categoryType !== undefined && categoryType !== '') {
@@ -115,7 +115,7 @@
                 })
             };
 
-            fetch('https://76dd-2405-201-5023-4823-80f5-7861-7db8-d40c.ngrok-free.app/user/update', requestOptions)
+            fetch('https://2f3d-2405-201-5023-4823-b9c4-f345-e4c-1a10.ngrok-free.app/user/update', requestOptions)
                 .then(response => response.json())
                 .then(data => {
                     // Handle response from the server, if needed
