@@ -11,7 +11,7 @@ pipeline{
         stage("Build"){
             steps{
                 echo "Building the Code"
-                sh "docker build -f DockerFile  -t node_app ." 
+                sh "docker build -f DockerFile  -t node_app1 ." 
             }
         }
         stage("Push to Docker Hub"){
