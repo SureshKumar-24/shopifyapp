@@ -80,16 +80,18 @@ module.exports = {
             return res.status(500).json({ success: false, status: 500, msg: "Internal Server Error", error: error.msg });
         }
     },
+
     updatestatus: async (req, res) => {
         try {
             const { email, status } = req.body;
 
-            const userupdate = await User.update({ status: status }, {
+            const [userupdate] = await User.update({ status: status }, {
                 where: {
                     email: email,
                 },
             });
-            if (!userupdate) {
+         
+            if (userupdate === 0) {
                 return res.status(404).json({ success: false, status: 404, msg: "User doesn't exist " });
             }
             return res.status(200).json({ success: true, status: 200, msg: "User Status Updated Successfullly" });
@@ -98,5 +100,28 @@ module.exports = {
             return res.status(500).json({ success: false, status: 500, msg: "Internal Server Error", error: error.msg });
         }
     },
+
+    deleteUser: async (req, res) => {
+        try {
+          const errors = validationResult(req);
+          if (!errors.isEmpty()) {
+            return res.status(422).json({ success: false, status: 422, errors: errors.array() });
+          }
+    
+          const { email } = req.query;
+    
+          const user = await User.findOne({ where: { email } });
+          if (!user) {
+            return res.status(404).json({ success: false, status: 404, msg: "User doesn't exist" });
+          }
+    
+          await user.destroy();
+    
+          return res.status(200).json({ success: true, status: 200, msg: "User Deleted Successfully" });
+        } catch (error) {
+          console.log(error);
+          return res.status(500).json({ success: false, status: 500, msg: "Internal Server Error", error: error.message });
+        }
+      },
 
 }
