@@ -33,7 +33,7 @@ app.use((req, res, next) => {
   });
 
 app.get('/hello', (req, res) => {
-    return res.status(200).json({ success: true, status: 200, msg: "App running Success" });
+    return res.status(200).json({ success: true, status: 200, msg: "App running Successfully" });
 });
 
 app.listen(3000, () => {
